@@ -45,8 +45,8 @@ repositories {
 }
 
 dependencies {
-    implementation( project( ":ktorx" ) )
-    api( project( ":ktorx-response" ) )
+    implementation( "org.evoleq:ktorx-jvm:1.0.0" )
+    implementation( "org.evoleq:ktorx-response-jvm:1.0.0"  )
     
     // evoleq
     implementation(Config.Dependencies.evoleqCore)
@@ -84,4 +84,16 @@ dependencies {
      */
     
     testImplementation ("io.ktor:ktor-server-test-host:${Config.Versions.ktor}" )
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            groupId = Config.Projects.KtorxServerArch.group
+            artifactId = Config.Projects.KtorxServerArch.artefactId
+            version = Config.Projects.KtorxServerArch.version
+            
+            from(components["java"])
+        }
+    }
 }
