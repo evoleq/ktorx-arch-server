@@ -56,6 +56,8 @@ dependencies {
     implementation("org.evoleq:mathcat-result-jvm:1.0.0")
     implementation("org.evoleq:mathcat-core-jvm:1.0.0")
     implementation("org.evoleq:mathcat-structure-jvm:1.0.0")
+    implementation("org.evoleq:mathcat-morphism-jvm:1.0.0")
+    implementation("org.evoleq:mathcat-state-jvm:1.0.0")
     
     implementation(Config.Dependencies.kotlinStandardLibrary)
     implementation(Config.Dependencies.coroutines)

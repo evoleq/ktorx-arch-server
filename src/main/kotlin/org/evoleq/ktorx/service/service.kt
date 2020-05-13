@@ -18,14 +18,15 @@ package org.evoleq.ktorx.service
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.coroutineScope
 import org.drx.evoleq.type.KlScopedSuspendedState
-import org.drx.evoleq.type.ScopedSuspended
-import org.drx.evoleq.type.ScopedSuspendedState
-import org.drx.evoleq.type.by
+import org.evoleq.math.cat.suspend.monad.state.ScopedSuspendedState
 import org.evoleq.ktorx.marker.KtorxDsl
+import org.evoleq.math.cat.marker.MathSpeakDsl
 import org.evoleq.math.cat.suspend.monad.result.Result
+import org.evoleq.math.cat.suspend.morhism.ScopedSuspended
+import org.evoleq.math.cat.suspend.morhism.by
 
 
-typealias Service<I,O> = ScopedSuspended<I,O>
+typealias Service<I,O> = ScopedSuspended<I, O>
 typealias ResultService<I,O> = Service<Result<I, Throwable>, Result<O, Throwable>>
 typealias KlService<C, I, O> = ScopedSuspended<C, Service<I, O>>
 
@@ -41,7 +42,7 @@ fun <I,O,T> ServiceState(
         service -> state(service)
     }
 
-@KtorxDsl
+@MathSpeakDsl
 suspend fun <I,O> apply(service: ScopedSuspended<I,O>): suspend CoroutineScope.(I)->O = by(service)
-@KtorxDsl
+@MathSpeakDsl
 suspend infix fun <I,O> (suspend CoroutineScope.(I)->O).to(input: I): O = coroutineScope{this@to(input)}

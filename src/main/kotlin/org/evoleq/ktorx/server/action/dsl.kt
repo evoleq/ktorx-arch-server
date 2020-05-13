@@ -16,8 +16,8 @@
 package org.evoleq.ktorx.server.action
 
 import kotlinx.coroutines.coroutineScope
-import org.drx.evoleq.type.by
 import org.evoleq.ktorx.marker.KtorxDsl
+import org.evoleq.math.cat.suspend.morhism.by
 
 @KtorxDsl
 suspend fun <I, O> Context.respondBy(action: Action<I, O>): Pair<Context,Action<I, O>> = Pair(this,action)

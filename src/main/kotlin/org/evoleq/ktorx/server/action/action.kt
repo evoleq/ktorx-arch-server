@@ -23,8 +23,8 @@ import io.ktor.serialization.DefaultJsonConfiguration
 import io.ktor.util.pipeline.PipelineContext
 import kotlinx.serialization.*
 import kotlinx.serialization.json.Json
-import org.drx.evoleq.type.KlScopedSuspendedState
-import org.drx.evoleq.type.ScopedSuspendedState
+import org.evoleq.math.cat.suspend.monad.state.KlScopedSuspendedState
+import org.evoleq.math.cat.suspend.monad.state.ScopedSuspendedState
 import org.evoleq.ktorx.response.Response
 import org.evoleq.ktorx.marker.KtorxDsl
 import org.evoleq.ktorx.response.transform
