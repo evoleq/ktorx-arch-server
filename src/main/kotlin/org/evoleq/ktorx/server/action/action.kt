@@ -21,15 +21,16 @@ import io.ktor.request.receive
 import io.ktor.response.respond
 import io.ktor.serialization.DefaultJsonConfiguration
 import io.ktor.util.pipeline.PipelineContext
-import kotlinx.serialization.*
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
+import org.evoleq.ktorx.marker.KtorxDsl
+import org.evoleq.ktorx.response.Response
+import org.evoleq.ktorx.response.Serializers
+import org.evoleq.ktorx.response.transform
+import org.evoleq.math.cat.structure.x
+import org.evoleq.math.cat.suspend.monad.result.Result
 import org.evoleq.math.cat.suspend.monad.state.KlScopedSuspendedState
 import org.evoleq.math.cat.suspend.monad.state.ScopedSuspendedState
-import org.evoleq.ktorx.response.Response
-import org.evoleq.ktorx.marker.KtorxDsl
-import org.evoleq.ktorx.response.transform
-import org.evoleq.ktorx.response.Serializers
-import org.evoleq.math.cat.suspend.monad.result.Result
 
 typealias Context = PipelineContext<Unit, ApplicationCall>
 typealias Action<I, O> = KlScopedSuspendedState<Context, I, O>
@@ -48,29 +49,24 @@ fun <I,O> ResultAction(arrow: (Result<I,Throwable>) -> ScopedSuspendedState<Cont
 
 typealias ActionReader<I,O> = suspend ()->Action<I,O>
 
-//fun<I,O> Action(read:  suspend ()->Action<I,O>): ActionReader<I,O> = read
 @KtorxDsl
 inline fun <reified D : Any> receiveAction(): Action<Unit, Result<D, Throwable>> = KlScopedSuspendedState {
-     _->ScopedSuspendedState{context ->
-        Pair(
-            try{
+     _->ScopedSuspendedState{
+            context -> try{
                 val data:D = context.call.receive() //as D
                 Result.Success<D, Throwable>(data)
             } catch(throwable : Throwable){
                 Result.Failure<D, Throwable>(throwable)
-            },
-            context
-        )
+            } x context
     }
 }
 
 @KtorxDsl
 fun <Data: Any> transformAction(failureTransformation: (Throwable)->Pair<String,Int>): Action<Result<Data, Throwable>, Response<Data>> = KlScopedSuspendedState {
-        result -> ScopedSuspendedState{context -> Pair(
-                result.transform(failureTransformation),
-                context
-            )}
-        }
+    result -> ScopedSuspendedState{
+        context -> result.transform(failureTransformation) x context
+    }
+}
 
 @KtorxDsl
 inline fun<reified Data: Any> returnAction(): Action<Response<Data>, Response<Data>> = KlScopedSuspendedState { response ->
@@ -81,10 +77,7 @@ inline fun<reified Data: Any> returnAction(): Action<Response<Data>, Response<Da
                 response
             )
         context.call.respond(json)
-        Pair(
-            response,
-            context
-        )
+        response x context
     }
 }
 

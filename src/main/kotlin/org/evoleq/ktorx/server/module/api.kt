@@ -15,8 +15,8 @@
  */
 package org.evoleq.ktorx.server.module
 
-import org.evoleq.ktorx.server.action.Action
 import org.evoleq.ktorx.marker.KtorxDsl
+import org.evoleq.ktorx.server.action.Action
 
 
 data class Apis(private val apis: HashMap<String, Api>): Map<String, Api> by apis
@@ -28,19 +28,21 @@ sealed class Api(open val name: String) {
     ): Api( name ), Map<String,Action<*,*>> by actions
     data class Physical(
         override val name: String,
-        val baseUrl: String,
-        val port: Int
-    ): Api(name)
+        val scheme: String,
+        val host: String,
+        val port: Int,
+        val requests: ArrayList<ApiRequest>
+    ): Api(name), List<ApiRequest> by requests
 }
 
-sealed class ApiRequest(open val route: String){
-    data class Delete(override val route: String) : ApiRequest(route)
-    data class Get(override val route: String) : ApiRequest(route)
-    data class Head(override val route: String) : ApiRequest(route)
-    data class Options(override val route: String) : ApiRequest(route)
-    data class Post(override val route: String) : ApiRequest(route)
-    data class Put(override val route: String) : ApiRequest(route)
-    data class Patch(override val route: String) : ApiRequest(route)
+sealed class ApiRequest(open val name: String,open val route: String){
+    data class Delete(override val name: String,override val route: String) : ApiRequest(name,route)
+    data class Get(override val name: String,override val route: String) : ApiRequest(name,route)
+    data class Head(override val name: String,override val route: String) : ApiRequest(name,route)
+    data class Options(override val name: String,override val route: String) : ApiRequest(name,route)
+    data class Post(override val name: String,override val route: String) : ApiRequest(name,route)
+    data class Put(override val name: String,override val route: String) : ApiRequest(name,route)
+    data class Patch(override val name: String,override val route: String) : ApiRequest(name,route)
 }
 
 @KtorxDsl

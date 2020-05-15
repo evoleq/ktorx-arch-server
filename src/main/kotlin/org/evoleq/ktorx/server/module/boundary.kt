@@ -104,6 +104,18 @@ inline fun <reified Data1,reified Data2> Isomorphism(): Isomorphism<Data1, Data2
 
 )
 
+@KtorxDsl
+fun Boundary.findApiByUrl(url: String): Api.Physical = with(apis.values.filterIsInstance<Api.Physical>()){
+    find {
+        url.startsWith("/${it.name}") ||
+            it.find{ request -> url.startsWith("/${request.name}") } != null
+    }!!
+}
+@KtorxDsl
+fun Api.Physical.baseUrl() = "$scheme://$host:$port"
+
+@KtorxDsl
+fun Boundary.match(url: String): String = findApiByUrl(url).baseUrl()
 /*
 data class Isomorphism<in Data1 : Any,out  Data2 : Any>(val klazz1: KClass<in Data1>, val klazz2: KClass<out Data2>) {
     fun pull(data2: Data2): Data1 =
