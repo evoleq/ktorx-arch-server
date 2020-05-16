@@ -22,6 +22,7 @@ import io.ktor.response.respond
 import io.ktor.serialization.DefaultJsonConfiguration
 import io.ktor.util.pipeline.PipelineContext
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
 import org.evoleq.ktorx.marker.KtorxDsl
 import org.evoleq.ktorx.response.Response
@@ -64,20 +65,46 @@ inline fun <reified D : Any> receiveAction(): Action<Unit, Result<D, Throwable>>
 @KtorxDsl
 fun <Data: Any> transformAction(failureTransformation: (Throwable)->Pair<String,Int>): Action<Result<Data, Throwable>, Response<Data>> = KlScopedSuspendedState {
     result -> ScopedSuspendedState{
-        context -> result.transform(failureTransformation) x context
+        context -> try{
+                result.transform(failureTransformation)
+            } catch(throwable: Throwable){
+                Response.Failure<Data>(
+                    message = throwable.message?:"Throwable@transformAction: No message provided",
+                    code = 500
+                )
+            } x context
     }
 }
 
 @KtorxDsl
-inline fun<reified Data: Any> returnAction(): Action<Response<Data>, Response<Data>> = KlScopedSuspendedState { response ->
-    ScopedSuspendedState { context ->
-        val json = Json(DefaultJsonConfiguration.copy(prettyPrint = true))
-            .stringify(
-                Response.serializer(Serializers[Data::class] as KSerializer<Data>),
-                response
+inline fun<reified Data: Any> returnAction(): Action<Response<Data>, Response<Data>> = KlScopedSuspendedState {
+    response -> ScopedSuspendedState { context ->
+        try {
+            val json = Json(DefaultJsonConfiguration.copy(prettyPrint = true))
+                .stringify(
+                    Response.serializer(Serializers[Data::class] as KSerializer<Data>),
+                    response
+                )
+            context.call.respond(json)
+            response x context
+        } catch(exception: Exception) {
+            val message = exception.message?:"Exception@returnAction: No message provided"
+            val code = 500
+            val returnFailure = Response.Failure<Data>(
+                message = message,
+                code = code
             )
-        context.call.respond(json)
-        response x context
+            context.call.respond(
+                Json(DefaultJsonConfiguration.copy(prettyPrint = true)).stringify(
+                    Response.serializer(Int.serializer()),
+                    Response.Failure<Int>(
+                        message,
+                        code
+                    )
+                )
+            )
+            returnFailure x context
+        }
     }
 }
 
