@@ -21,8 +21,8 @@ import org.evoleq.math.cat.marker.MathSpeakDsl
 import org.evoleq.math.cat.suspend.monad.result.Result
 import org.evoleq.math.cat.suspend.monad.state.KlScopedSuspendedState
 import org.evoleq.math.cat.suspend.monad.state.ScopedSuspendedState
-import org.evoleq.math.cat.suspend.morhism.ScopedSuspended
-import org.evoleq.math.cat.suspend.morhism.by
+import org.evoleq.math.cat.suspend.morphism.ScopedSuspended
+import org.evoleq.math.cat.suspend.morphism.by
 
 
 typealias Service<I,O> = ScopedSuspended<I, O>
