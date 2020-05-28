@@ -19,6 +19,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.coroutineScope
 import org.evoleq.math.cat.marker.MathSpeakDsl
 import org.evoleq.math.cat.suspend.monad.result.Result
+import org.evoleq.math.cat.suspend.monad.result.failT
+import org.evoleq.math.cat.suspend.monad.result.retT
 import org.evoleq.math.cat.suspend.monad.state.KlScopedSuspendedState
 import org.evoleq.math.cat.suspend.monad.state.ScopedSuspendedState
 import org.evoleq.math.cat.suspend.morphism.ScopedSuspended
@@ -45,3 +47,14 @@ fun <I,O,T> ServiceState(
 suspend fun <I,O> apply(service: ScopedSuspended<I,O>): suspend CoroutineScope.(I)->O = by(service)
 @MathSpeakDsl
 suspend infix fun <I,O> (suspend CoroutineScope.(I)->O).to(input: I): O = coroutineScope{this@to(input)}
+
+@MathSpeakDsl
+fun <I, O> Service<I, O>.onResults(): ResultService<I, O> = ScopedSuspended {
+    input -> input.bind {
+        try{
+            Result.retT<O>(apply(this@onResults) to it)
+        } catch(throwable : Throwable) {
+            Result.failT<O>(throwable)
+        }
+    }
+}
