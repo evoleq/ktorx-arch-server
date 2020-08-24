@@ -18,14 +18,26 @@ package org.evoleq.ktorx.server.module
 import org.evoleq.ktorx.marker.KtorxDsl
 import org.evoleq.ktorx.server.action.Action
 
-
+/**
+ * data class holding information about APIs in the [Boundary] of the [Application]
+ */
 data class Apis(private val apis: HashMap<String, Api>): Map<String, Api> by apis
 
+/**
+ * API-Description
+ */
 sealed class Api(open val name: String) {
+    /**
+     * Logical Api Description
+     */
     data class Logical(
         override val name: String,
         private val actions: HashMap<String,Action<*,*>>
     ): Api( name ), Map<String,Action<*,*>> by actions
+    
+    /**
+     * Physical Api Description
+     */
     data class Physical(
         override val name: String,
         val scheme: String,

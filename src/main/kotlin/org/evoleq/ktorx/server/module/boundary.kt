@@ -18,38 +18,17 @@ package org.evoleq.ktorx.server.module
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
-import org.drx.configuration.Configuration
 import org.evoleq.ktorx.marker.KtorxDsl
 import org.evoleq.ktorx.response.Serializers
 import kotlin.reflect.KClass
 
 data class Boundary(
     val apis: Apis,
-    val isos: Isomorphisms
+    val isos: Isomorphisms,
+    val databases: Databases
 )
 
-open class BoundaryConfiguration : Configuration<Boundary> {
-    val isos: HashMap<KClass<*>, Isomorphism<*, *>> = hashMapOf()
-    val apis: HashMap<String, Api> = hashMapOf()
 
-    override fun configure(): Boundary = Boundary(
-        Apis(apis),
-        Isomorphisms(isos)
-    )
-    @KtorxDsl
-    infix fun <Data1: Any, Data2: Any> KClass<Data1>.iso(other: KClass<Data2>) {
-        isos[this] = this isomorphic  other
-    }
-    @KtorxDsl
-    inline infix fun <reified Data1: Any, Data2: Any> Transformation<Data1, Data2>.inverts(other: Transformation<Data2, Data1>) {
-        isos[Data1::class] = Isomorphism(this,other)
-    }
-}
-@KtorxDsl
-fun boundary(configuration: BoundaryConfiguration.()->Unit): Boundary = with(BoundaryConfiguration()) {
-    configuration()
-    configure()
-}
 @KtorxDsl
 data class Transformation<Data1,Data2>(val transformation: (Data1)->Data2): (Data1)->Data2 by transformation
 @KtorxDsl
@@ -147,3 +126,14 @@ data class Isomorphisms(val isos: HashMap<KClass<*>, Isomorphism<*,*>>) {
  */
 
 //inline fun <reified Data1,reified Data2> Isomorphism(): Isomorphism<Data1,Data2> =
+/**
+ * Set parameters of a route
+ */
+@KtorxDsl
+fun String.setParameters(parameters: HashMap<String, String>): String {
+    var tmp = this
+    parameters.forEach { (key, value) ->
+        tmp = tmp.replace("{$key}", value)
+    }
+    return tmp
+}

@@ -63,6 +63,18 @@ inline fun <reified D : Any> receiveAction(): Action<Unit, Result<D, Throwable>>
 }
 
 @KtorxDsl
+inline fun <C : Any, reified D : Any> configureAndReceiveAction(): Action<C, Result<Pair<C, D>, Throwable>> = KlScopedSuspendedState {
+    config ->ScopedSuspendedState{
+        context -> try{
+            val data:D = context.call.receive() //as D
+            Result.Success<Pair<C, D>, Throwable>(config to data)
+        } catch(throwable : Throwable){
+            Result.Failure<Pair<C, D>, Throwable>(throwable)
+        } x context
+    }
+}
+
+@KtorxDsl
 fun <Data: Any> transformAction(failureTransformation: (Throwable)->Pair<String,Int>): Action<Result<Data, Throwable>, Response<Data>> = KlScopedSuspendedState {
     result -> ScopedSuspendedState{
         context -> try{
