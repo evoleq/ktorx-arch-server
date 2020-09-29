@@ -94,7 +94,23 @@ fun Boundary.findApiByUrl(url: String): Api.Physical = with(apis.values.filterIs
 fun Api.Physical.baseUrl() = "$scheme://$host:$port"
 
 @KtorxDsl
+fun String.fixRoute() = when(startsWith("/")) {
+    true -> this
+    else -> "/$this"
+}
+
+@KtorxDsl
 fun Boundary.match(url: String): String = findApiByUrl(url).baseUrl()
+
+@KtorxDsl
+fun Boundary.route(apiName: String, routeName: String): String = with(
+    apis.filterValues { it is Api.Physical }[apiName] as Api.Physical
+) {
+    baseUrl() + "/$apiName" +
+    requests.find{
+       it.name == routeName
+    }?.route!!.fixRoute()
+}
 /*
 data class Isomorphism<in Data1 : Any,out  Data2 : Any>(val klazz1: KClass<in Data1>, val klazz2: KClass<out Data2>) {
     fun pull(data2: Data2): Data1 =

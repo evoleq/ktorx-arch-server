@@ -16,16 +16,35 @@
 package org.evoleq.ktorx.server.module
 
 import org.drx.configuration.Configuration
+import org.evoleq.ktorx.marker.KtorxDsl
 
 class DatabaseConfiguration : Configuration<Database> {
+    
+    @KtorxDsl
     lateinit var type: DatabaseType
+    
+    @KtorxDsl
     lateinit var name: String
+    
+    @KtorxDsl
     lateinit var host: String
+    
+    @KtorxDsl
     var port: Int = 3306
+    
+    @KtorxDsl
     lateinit var scheme: String
+    
+    @KtorxDsl
     lateinit var params: String
+    
+    @KtorxDsl
     lateinit var driver: String
+    
+    @KtorxDsl
     lateinit var user: String
+    
+    @KtorxDsl
     lateinit var password: String
     
     override fun configure(): Database = Database(

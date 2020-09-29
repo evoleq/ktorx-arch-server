@@ -20,8 +20,13 @@ import org.evoleq.ktorx.marker.KtorxDsl
 import kotlin.reflect.KClass
 
 open class BoundaryConfiguration : Configuration<Boundary> {
+    @KtorxDsl
     val isos: HashMap<KClass<*>, Isomorphism<*, *>> = hashMapOf()
+    
+    @KtorxDsl
     val apis: HashMap<String, Api> = hashMapOf()
+    
+    @KtorxDsl
     val databases: HashMap<String, Database> = hashMapOf()
     
     override fun configure(): Boundary = Boundary(

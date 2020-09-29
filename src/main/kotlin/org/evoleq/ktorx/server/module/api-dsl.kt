@@ -24,8 +24,10 @@ import org.evoleq.ktorx.server.action.Action
 
 class LogicalApiConfiguration : Configuration<Api> {
     
+    @KtorxDsl
     lateinit var name: String
     
+    @KtorxDsl
     private val actions: HashMap<String,Action<*,*>> by lazy { hashMapOf<String, Action<*,* >> ()}
     
     override fun configure(): Api = Api.Logical(name, actions)
@@ -50,10 +52,19 @@ class LogicalApiConfiguration : Configuration<Api> {
 
 class PhysicalApiConfiguration : Configuration<Api> {
     
+    @KtorxDsl
     lateinit var name: String
+    
+    @KtorxDsl
     lateinit var scheme: String
+    
+    @KtorxDsl
     lateinit var host: String
+    
+    @KtorxDsl
     var port: Int = 80
+    
+    @KtorxDsl
     private val requests: ArrayList<ApiRequest> by lazy { arrayListOf<ApiRequest>()}
     
     override fun configure(): Api = Api.Physical(
