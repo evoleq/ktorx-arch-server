@@ -15,11 +15,7 @@
  */
 package org.evoleq.ktorx.server.module
 
-import kotlinx.serialization.KSerializer
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonConfiguration
 import org.evoleq.ktorx.marker.KtorxDsl
-import org.evoleq.ktorx.response.Serializers
 import kotlin.reflect.KClass
 
 data class Boundary(
@@ -37,6 +33,7 @@ data class Isomorphisms(private val isos: HashMap<KClass<*>, Isomorphism<*, *>>)
 data class Isomorphism<Data1,Data2>(val push: Transformation<Data1, Data2>, val pull: Transformation<Data2, Data1>): (Data1)->Data2 by push
 @KtorxDsl
 fun <Data1, Data2> Isomorphism<Data1, Data2>.invert(): Isomorphism<Data2, Data1> = Isomorphism(pull,push)
+/*
 @KtorxDsl
 infix fun <Data1: Any, Data2: Any> KClass<Data1>.isomorphic(other: KClass<Data2>): Isomorphism<Data1, Data2> = Isomorphism(
     Transformation { data1: Data1 ->
@@ -82,7 +79,7 @@ inline fun <reified Data1,reified Data2> Isomorphism(): Isomorphism<Data1, Data2
     }
 
 )
-
+*/
 @KtorxDsl
 fun Boundary.findApiByUrl(url: String): Api.Physical = with(apis.values.filterIsInstance<Api.Physical>()){
     find {

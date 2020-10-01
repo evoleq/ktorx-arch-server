@@ -15,12 +15,10 @@
  */
 package org.evoleq.ktorx.server.action
 
-import io.ktor.application.ApplicationCall
-import io.ktor.application.call
-import io.ktor.request.receive
-import io.ktor.response.respond
-import io.ktor.serialization.DefaultJsonConfiguration
-import io.ktor.util.pipeline.PipelineContext
+import io.ktor.application.*
+import io.ktor.request.*
+import io.ktor.response.*
+import io.ktor.util.pipeline.*
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
@@ -67,7 +65,7 @@ inline fun <C : Any, reified D : Any> configureAndReceiveAction(): Action<C, Res
     config ->ScopedSuspendedState{
         context -> try{
             val data:D = context.call.receive() //as D
-            Result.Success<Pair<C, D>, Throwable>(config to data)
+            Result.Success<Pair<C, D>, Throwable>((config x  data) )
         } catch(throwable : Throwable){
             Result.Failure<Pair<C, D>, Throwable>(throwable)
         } x context
@@ -92,11 +90,11 @@ fun <Data: Any> transformAction(failureTransformation: (Throwable)->Pair<String,
 inline fun<reified Data: Any> returnAction(): Action<Response<Data>, Response<Data>> = KlScopedSuspendedState {
     response -> ScopedSuspendedState { context ->
         try {
-            val json = Json(DefaultJsonConfiguration.copy(prettyPrint = true))
-                .stringify(
-                    Response.serializer(Serializers[Data::class] as KSerializer<Data>),
-                    response
-                )
+            val json = Json(){prettyPrint = true}
+            json.encodeToString(
+                Response.serializer(Serializers[Data::class] as KSerializer<Data>),
+                response
+            )
             context.call.respond(json)
             response x context
         } catch(exception: Exception) {
@@ -107,7 +105,7 @@ inline fun<reified Data: Any> returnAction(): Action<Response<Data>, Response<Da
                 code = code
             )
             context.call.respond(
-                Json(DefaultJsonConfiguration.copy(prettyPrint = true)).stringify(
+                Json(){prettyPrint = true}.encodeToString(
                     Response.serializer(Int.serializer()),
                     Response.Failure<Int>(
                         message,

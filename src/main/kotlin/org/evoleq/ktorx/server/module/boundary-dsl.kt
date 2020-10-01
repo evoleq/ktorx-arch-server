@@ -34,10 +34,13 @@ open class BoundaryConfiguration : Configuration<Boundary> {
         Isomorphisms(isos),
         Databases(databases)
     )
+    /*
     @KtorxDsl
     infix fun <Data1: Any, Data2: Any> KClass<Data1>.iso(other: KClass<Data2>) {
         isos[this] = this isomorphic  other
     }
+
+     */
     @KtorxDsl
     inline infix fun <reified Data1: Any, Data2: Any> Transformation<Data1, Data2>.inverts(other: Transformation<Data2, Data1>) {
         isos[Data1::class] = Isomorphism(this,other)

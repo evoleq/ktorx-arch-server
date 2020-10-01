@@ -1,12 +1,7 @@
 plugins {
-    //kotlin("multiplatform")
-    
-    //application
     java
     kotlin("jvm")  version Config.Versions.kotlin
-    
     id("org.jetbrains.kotlin.plugin.serialization") version Config.Versions.kotlinSerializationPlugin
-    //id("com.google.protobuf")
     id ("com.github.hierynomus.license") version "0.15.0"
     `maven-publish`
     maven
@@ -45,23 +40,24 @@ repositories {
 }
 
 dependencies {
-    implementation( "org.evoleq:ktorx-jvm:${Config.Projects.Ktorx.version}" )
-    implementation( "org.evoleq:ktorx-response-jvm:${Config.Projects.KtorxResponse.version}"  )
-    
-    // evoleq
-    implementation(Config.Dependencies.evoleqCore)
-    //implementation(Config.Dependencies.dynamics)
+    implementation(Config.Dependencies.kotlinStandardLibrary)
+    implementation(Config.Dependencies.coroutines)
+
+    // evoleq/configurations
     implementation(Config.Dependencies.configurations)
-    
+
+    // evoleq/mathcat
     implementation("org.evoleq:mathcat-result-jvm:${Config.Versions.mathcat}")
     implementation("org.evoleq:mathcat-core-jvm:${Config.Versions.mathcat}")
     implementation("org.evoleq:mathcat-structure-jvm:${Config.Versions.mathcat}")
     implementation("org.evoleq:mathcat-morphism-jvm:${Config.Versions.mathcat}")
     implementation("org.evoleq:mathcat-state-jvm:${Config.Versions.mathcat}")
-    
-    implementation(Config.Dependencies.kotlinStandardLibrary)
-    implementation(Config.Dependencies.coroutines)
-    implementation(Config.Dependencies.kotlinSerializationRuntime)
+
+    // evoleq/ktorx
+    implementation( "org.evoleq:ktorx-jvm:${Config.Projects.Ktorx.version}" )
+    implementation( "org.evoleq:ktorx-response-jvm:${Config.Projects.KtorxResponse.version}"  )
+
+
     
     // ktor
     implementation( Config.Dependencies.ktorServerNetty )
@@ -71,11 +67,8 @@ dependencies {
     
     implementation("io.ktor:ktor-serialization:${Config.Versions.ktor}")
     //implementation("io.ktor:ktor-gson:${Config.Versions.ktor}")
-    
     //implementation("io.ktor:ktor-auth:${Config.Versions.ktor}")
     //implementation("io.ktor:ktor-auth-jwt:${Config.Versions.ktor}")
-
-    
     implementation("io.ktor:ktor-websockets:${Config.Versions.ktor}")
     implementation("io.ktor:ktor-client-core:${Config.Versions.ktor}")
     implementation("io.ktor:ktor-client-cio:${Config.Versions.ktor}")
