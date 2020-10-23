@@ -29,10 +29,14 @@ open class BoundaryConfiguration : Configuration<Boundary> {
     @KtorxDsl
     val databases: HashMap<String, Database> = hashMapOf()
     
+    @KtorxDsl
+    val translations: TypedTranslations = TypedTranslations()
+    
     override fun configure(): Boundary = Boundary(
         Apis(apis),
         Isomorphisms(isos),
-        Databases(databases)
+        Databases(databases),
+        translations
     )
     /*
     @KtorxDsl
@@ -84,6 +88,13 @@ open class BoundaryConfiguration : Configuration<Boundary> {
         configuration()
         this@database[key] = configure()
     }
+    
+    @KtorxDsl
+    inline fun <reified Type> translations(noinline translations: Translations.()->Unit) =
+        with(Translations()) {
+            translations()
+            this@BoundaryConfiguration.translations[Type::class] = this
+        }
 }
 
 @KtorxDsl

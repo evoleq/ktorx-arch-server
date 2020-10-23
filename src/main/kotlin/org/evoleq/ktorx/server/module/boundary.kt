@@ -21,7 +21,8 @@ import kotlin.reflect.KClass
 data class Boundary(
     val apis: Apis,
     val isos: Isomorphisms,
-    val databases: Databases
+    val databases: Databases,
+    val translations: TypedTranslations
 )
 
 

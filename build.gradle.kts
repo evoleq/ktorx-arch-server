@@ -57,6 +57,9 @@ dependencies {
     implementation( "org.evoleq:ktorx-jvm:${Config.Projects.Ktorx.version}" )
     implementation( "org.evoleq:ktorx-response-jvm:${Config.Projects.KtorxResponse.version}"  )
 
+    testImplementation( "org.evoleq:ktorx-jvm:${Config.Projects.Ktorx.version}" )
+    testImplementation( "org.evoleq:ktorx-response-jvm:${Config.Projects.KtorxResponse.version}"  )
+
 
     
     // ktor

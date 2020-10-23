@@ -90,14 +90,14 @@ fun <Data: Any> transformAction(failureTransformation: (Throwable)->Pair<String,
 inline fun<reified Data: Any> returnAction(): Action<Response<Data>, Response<Data>> = KlScopedSuspendedState {
     response -> ScopedSuspendedState { context ->
         try {
-            val json = Json(){prettyPrint = true}
-            json.encodeToString(
+            val json = Json{prettyPrint = true}.encodeToString(
                 Response.serializer(Serializers[Data::class] as KSerializer<Data>),
                 response
             )
             context.call.respond(json)
             response x context
         } catch(exception: Exception) {
+            exception.printStackTrace()
             val message = exception.message?:"Exception@returnAction: No message provided"
             val code = 500
             val returnFailure = Response.Failure<Data>(
