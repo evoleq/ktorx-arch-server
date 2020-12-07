@@ -15,7 +15,8 @@
  */
 package org.evoleq.ktorx.server.module
 
-import io.ktor.application.Application
+import io.ktor.application.*
+import io.ktor.util.pipeline.*
 import org.evoleq.ktorx.marker.KtorxDsl
 import org.evoleq.ktorx.response.SerializersConfiguration
 
@@ -28,3 +29,5 @@ fun Application.serializers(configuration: SerializersConfiguration.()->Unit) = 
     configure()
 }
 
+fun PipelineContext<Unit, ApplicationCall>.serializers(configuration: SerializersConfiguration.()->Unit) =
+    application.serializers(configuration)

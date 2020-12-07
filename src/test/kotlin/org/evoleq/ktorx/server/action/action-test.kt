@@ -15,86 +15,96 @@
  */
 package org.evoleq.ktorx.server.action
 
-import io.ktor.application.*
 import io.ktor.server.testing.*
-import io.ktor.util.pipeline.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.builtins.serializer
 import org.evoleq.ktorx.response.Response
 import org.evoleq.ktorx.server.module.serializers
-import kotlin.coroutines.CoroutineContext
+import org.evoleq.math.cat.structure.x
+import org.evoleq.math.cat.suspend.monad.result.Result
+import org.evoleq.math.cat.suspend.monad.result.failT
+import org.evoleq.math.cat.suspend.monad.result.retT
+import org.evoleq.math.cat.suspend.monad.state.ScopedSuspendedState
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class ActionTest {
-
-    fun testContext(call: ApplicationCall,coroutineContext: CoroutineContext) = object : PipelineContext<Unit, ApplicationCall> {
-        /**
-         * Object representing context in which pipeline executes
-         */
-        override val context: ApplicationCall
-            get() = call
-
-        /**
-         * The context of this scope.
-         * Context is encapsulated by the scope and used for implementation of coroutine builders that are extensions on the scope.
-         * Accessing this property in general code is not recommended for any purposes except accessing the [Job] instance for advanced usages.
-         *
-         * By convention, should contain an instance of a [job][Job] to enforce structured concurrency.
-         */
-        override val coroutineContext: CoroutineContext
-            get() = coroutineContext
-
-        /**
-         * Subject of this pipeline execution that goes along the pipeline
-         */
-        override val subject: Unit
-            get() = Unit
-
-        /**
-         * Finishes current pipeline execution
-         */
-        override fun finish() {
-
+    @Test
+    fun `result action` () = runBlocking{
+        val resultAction = ResultAction<Int, String> { result ->
+            ScopedSuspendedState { context ->
+                result map {
+                    "$it"
+                } x context
+            }
         }
-
-        /**
-         * Continues execution of the pipeline with the same subject
-         */
-        override suspend fun proceed() {
-            //TODO("Not yet implemented")
-        }
-
-        /**
-         * Continues execution of the pipeline with the given subject
-         */
-        override suspend fun proceedWith(subject: Unit) {
-            //TODO("Not yet implemented")
-        }
-
+        val resultSuccess = withActionTestContext {
+            respondBy(resultAction) on Result.retT(0)
+        }.await().first
+        require(resultSuccess is Result.Success)
     }
-
+    
     @Test
     fun `return action`() = runBlocking {
-        var context: PipelineContext<Unit, ApplicationCall>? = null
-        withTestApplication() {
-
-            application.serializers{
+        val response = withActionTestContext {
+            serializers {
                 Boolean::class with Boolean.serializer()
             }
-            context = testContext(handleRequest {  }, application.coroutineContext)
-            GlobalScope.launch {
-
-            }
-
-        }.join()
-        println("go")
-        val response = with(context!!) {
             respondBy(returnAction<Boolean>()) on Response.Success(true)
-        }.first
-
-        println(response)
-        delay (1_000)
-        Unit
+        }.await().first
+        
+        require(response is Response.Success)
+        assertEquals(true,response.data)
     }
-
+    
+    @Test
+    fun `receive action`() = runBlocking {
+        val expected = "test"
+        val result = withActionTestContext({
+            createCall {
+                setBody(expected)
+            }
+        }) {
+            by(receiveAction<String>())
+        }.await().first
+        require(result is Result.Success)
+        assertEquals(expected,result.value)
+    }
+    
+    @Test
+    fun `configure and receive`() = runBlocking {
+        val expected = Pair(1, "2")
+        val result = withActionTestContext({
+            createCall{
+                setBody("2")
+            }
+        }) {
+            respondBy(configureAndReceiveAction<Int,String>()) on 1
+        }.await().first
+        require(result is Result.Success)
+        assertEquals(expected, result.value)
+    }
+    
+    @Test
+    fun `transform with success`() = runBlocking {
+        val expected = Response.Success(Unit)
+        val result = withActionTestContext {
+            respondBy(transformAction<Unit> { Pair("",0) }) on Result.ret(Unit)
+        }.await().first
+        require(result is Response.Success)
+        assertEquals(expected, result)
+    }
+    
+    @Test
+    fun `transform with failure` () = runBlocking {
+        val expected = Response.Failure<Unit>(
+            "",
+            0
+        )
+        val result = withActionTestContext {
+            respondBy(transformAction<Unit> { Pair("",0) }) on Result.failT<Unit>(Exception())
+        }.await().first
+        require(result is Response.Failure)
+        assertEquals(expected, result)
+    }
 }

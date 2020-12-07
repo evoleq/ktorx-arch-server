@@ -59,6 +59,7 @@ dependencies {
 
     testImplementation( "org.evoleq:ktorx-jvm:${Config.Projects.Ktorx.version}" )
     testImplementation( "org.evoleq:ktorx-response-jvm:${Config.Projects.KtorxResponse.version}"  )
+    testImplementation( "org.evoleq:ktorx-server-arch-test:${Config.Projects.KtorxResponse.version}"  )
 
 
     

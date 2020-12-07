@@ -32,8 +32,12 @@ data class Databases(
 ) : Map<String,Database> by databases
 
 sealed class DatabaseType {
+    object H2 : DatabaseType()
     object  MySql : DatabaseType()
     object MariaDb : DatabaseType()
 }
 
-fun Database.url(): String = "$scheme://$host:$port/$name$params"
+fun Database.url(): String = "$scheme://$host:$port/$name$params".replace(
+    "//~:$port",
+    "~"
+).replace("//mem:$port/","mem:")

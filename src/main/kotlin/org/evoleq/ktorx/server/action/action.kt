@@ -19,6 +19,7 @@ import io.ktor.application.*
 import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.util.pipeline.*
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
@@ -33,16 +34,17 @@ import org.evoleq.math.cat.suspend.monad.state.ScopedSuspendedState
 
 typealias Context = PipelineContext<Unit, ApplicationCall>
 typealias Action<I, O> = KlScopedSuspendedState<Context, I, O>
+typealias ResultAction<I, O> = Action<Result<I,Throwable>,Result<O,Throwable>>
 
 @Suppress("FunctionName")
 @KtorxDsl
-fun <I,O> Action(arrow: (I) -> ScopedSuspendedState<Context,O>): Action<I,O> = KlScopedSuspendedState {
+fun <I,O> Action(arrow: suspend CoroutineScope.(I) -> ScopedSuspendedState<Context,O>): Action<I,O> = KlScopedSuspendedState {
         input -> arrow(input)
 }
 
 @Suppress("FunctionName")
 @KtorxDsl
-fun <I,O> ResultAction(arrow: (Result<I,Throwable>) -> ScopedSuspendedState<Context,Result<O,Throwable>>): Action<Result<I,Throwable>,Result<O,Throwable>> = KlScopedSuspendedState {
+fun <I,O> ResultAction(arrow: suspend CoroutineScope.(Result<I,Throwable>) -> ScopedSuspendedState<Context,Result<O,Throwable>>): ResultAction<I, O> = KlScopedSuspendedState {
         input -> arrow(input)
 }
 
@@ -73,7 +75,9 @@ inline fun <C : Any, reified D : Any> configureAndReceiveAction(): Action<C, Res
 }
 
 @KtorxDsl
-fun <Data: Any> transformAction(failureTransformation: (Throwable)->Pair<String,Int>): Action<Result<Data, Throwable>, Response<Data>> = KlScopedSuspendedState {
+fun <Data: Any> transformAction(
+    failureTransformation: (Throwable)->Pair<String,Int> = { throwable -> (throwable.message?:"No message provided") x 500 }
+): Action<Result<Data, Throwable>, Response<Data>> = KlScopedSuspendedState {
     result -> ScopedSuspendedState{
         context -> try{
                 result.transform(failureTransformation)
