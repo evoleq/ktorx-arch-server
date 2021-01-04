@@ -71,7 +71,37 @@ fun ApplicationEnvironment.boundaryConfigurations(): ImmutableMap<String, Bounda
         listOf<String>()}.toHashSet()
     imports.addAll(defaultImports)
     val modules = config.property("ktor.config.modules").getList()
-        .map{ module -> module to File("$path/module/${module}/boundary").listFiles()!!.filter{ it.isFile && it.name.endsWith(".kts") }}
+        .map{
+            module -> module to File("$path/module/${module}/boundary").files()
+            /*
+                .map{
+                    when{
+                        it.isFile -> listOf(it)
+                        it.isDirectory ->
+                        
+                    }
+                }
+                
+             */
+             .filter{ it.name.endsWith(".kts") }
+        }
         .map{it.first to boundaryConfiguration(imports, *it.second.toTypedArray())}
     return ImmutableMap(hashMapOf(*modules.toTypedArray()))
+}
+
+fun File.files(): ArrayList<File> = when{
+    isFile -> arrayListOf(this)
+    else -> {
+        val result = arrayListOf<File>()
+        listFiles()?.forEach {
+            if(it.isFile) {
+                result.add(it)
+            } else {
+                result.addAll(
+                    it.files()
+                )
+            }
+        }
+        result
+    }
 }

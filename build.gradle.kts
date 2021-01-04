@@ -45,6 +45,7 @@ dependencies {
 
     // evoleq/configurations
     implementation(Config.Dependencies.configurations)
+    implementation(Config.Dependencies.dynamics)
 
     // evoleq/mathcat
     implementation("org.evoleq:mathcat-result-jvm:${Config.Versions.mathcat}")

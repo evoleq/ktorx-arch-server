@@ -15,6 +15,9 @@
  */
 package org.evoleq.ktorx.data
 
+import org.drx.dynamics.Singleton
+import org.evoleq.ktorx.server.module.BoundaryConfiguration
+
 /**
  * Abstract the environment of an application
  */
@@ -32,6 +35,9 @@ open class Environment {
                     innerType = value
                 }
             }
+        val boundaryConfigurations: Singleton<ImmutableMap<String, BoundaryConfiguration.() -> Unit>> by lazy {
+            Singleton<ImmutableMap<String, BoundaryConfiguration.() -> Unit>>()
+        }
     }
 }
 
