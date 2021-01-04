@@ -116,3 +116,9 @@ class PhysicalApiConfiguration : Configuration<Api> {
     }
     
 }
+
+@KtorxDsl
+fun apis(configuration: BoundaryConfiguration.()->Unit): Apis = with(BoundaryConfiguration()) {
+    configuration()
+    Apis(apis)
+}

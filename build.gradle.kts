@@ -79,6 +79,13 @@ dependencies {
     implementation("io.ktor:ktor-client-serialization-jvm:${Config.Versions.ktor}")
     implementation("io.ktor:ktor-client-json-jvm:${Config.Versions.ktor}")
     
+    
+    // kotlin scripting
+    api ("org.jetbrains.kotlin:kotlin-script-util:${Config.Versions.kotlin}")
+    api ("org.jetbrains.kotlin:kotlin-script-runtime:${Config.Versions.kotlin}")
+    api ("org.jetbrains.kotlin:kotlin-compiler-embeddable:${Config.Versions.kotlin}")
+    api ("org.jetbrains.kotlin:kotlin-scripting-compiler-embeddable:${Config.Versions.kotlin}")
+    
     /*
      */
     

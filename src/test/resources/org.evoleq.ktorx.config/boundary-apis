@@ -1,0 +1,64 @@
+
+apis{
+    physical("users") {
+        name = "users"
+        scheme = "http"
+        host = "management_server"
+        port = 8081
+        requests {
+            post("login", "/login")
+            delete("logout","/logout")
+            post("register", "/register")
+            post("confirm-registration", "/confirm-registration")
+            post("set-password", "/set-password")
+            get("id","/id")
+            get("profile/get","/profile/get")
+            post("profile/post","/profile/post")
+            patch("profile/patch","/profile/patch")
+        }
+    }
+    physical("authenticator") {
+        name = "authenticator"
+        scheme = "http"
+        host = "management_server"
+        port = 8081
+        requests {
+            post("authenticate", "/authenticate")
+        }
+    }
+    physical("chat/socket") {
+        name = "chat/socket"
+        scheme = "ws"
+        host = "chat_socket"
+        port = 8081
+        requests {
+            get("/", "/")
+        }
+    }
+    physical("chat/api"){
+        name = "chat/api"
+        scheme = "http"
+        host = "chat_api"
+        port = 8081
+        requests {
+            post(
+                name = "add-member-to-chat-group",
+                route = "/chat-groups/add-member"
+            )
+        }
+    }
+    physical("play") {
+        name = "play"
+        scheme = "http"
+        host = "management_server"
+        port = 8081
+        requests {
+            get("success", "/success")
+            get("fail", "/fail")
+        }
+    }
+}
+
+
+    
+

@@ -59,3 +59,8 @@ class DatabaseConfiguration : Configuration<Database> {
         password
     )
 }
+@KtorxDsl
+fun databases(configuration: Databases.()->Unit): Databases = with(Databases(hashMapOf())) {
+    configuration()
+    this
+}

@@ -21,7 +21,7 @@ import org.evoleq.ktorx.server.action.Action
 /**
  * data class holding information about APIs in the [Boundary] of the [Application]
  */
-data class Apis(private val apis: HashMap<String, Api>): Map<String, Api> by apis
+data class Apis(private val apis: HashMap<String, Api> = hashMapOf()): Map<String, Api> by apis
 
 /**
  * API-Description

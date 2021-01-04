@@ -69,5 +69,8 @@ inline fun <reified Type, reified Name, S:Any, T:Any> Boundary.translate(): (S)-
         translate<Name, S, T>()
     }
 
-
+fun translations(configuration: Translations.()->Unit): Translations = with(Translations()) {
+    configuration()
+    this
+}
 
