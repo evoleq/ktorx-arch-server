@@ -32,8 +32,17 @@ In this folder create a folder ```module```, for each module create a folder wit
 Create
 
 Place kts-files describing the boundary configuration under the folder
-```moduleX/boundary```
-
+```
+    moduleX/boundary
+```
+or any subfolder, e.g.
+```
+    moduleX/boundary
+        |-apis
+        |-databases
+        |-translations
+        |-any other dir 
+```
 Example: 
 ```
 /path/to/config/folder
