@@ -15,8 +15,6 @@
  */
 package org.evoleq.ktorx.config
 
-import io.ktor.application.*
-import org.evoleq.ktorx.data.ImmutableMap
 import org.evoleq.ktorx.server.module.BoundaryConfiguration
 import java.io.File
 
@@ -31,6 +29,7 @@ fun boundaryConfiguration(
     vararg files: File
 ): BoundaryConfiguration.()->Unit {
     val tab = "    "
+    imports.addAll(defaultImports)
     val configs= files
         .map { it.readLines() }
         .map { list ->
@@ -65,43 +64,3 @@ fun boundaryConfiguration(
     return evalScript(script) as BoundaryConfiguration.()->Unit
 }
 
-fun ApplicationEnvironment.boundaryConfigurations(): ImmutableMap<String, BoundaryConfiguration.() -> Unit> {
-    val path = config.property("ktor.config.path").getString()
-    val imports = try{config.property("ktor.config.imports").getList()}catch (ex: Exception){
-        listOf<String>()}.toHashSet()
-    imports.addAll(defaultImports)
-    val modules = config.property("ktor.config.modules").getList()
-        .map{
-            module -> module to File("$path/module/${module}/boundary").files()
-            /*
-                .map{
-                    when{
-                        it.isFile -> listOf(it)
-                        it.isDirectory ->
-                        
-                    }
-                }
-                
-             */
-             .filter{ it.name.endsWith(".kts") }
-        }
-        .map{it.first to boundaryConfiguration(imports, *it.second.toTypedArray())}
-    return ImmutableMap(hashMapOf(*modules.toTypedArray()))
-}
-
-fun File.files(): ArrayList<File> = when{
-    isFile -> arrayListOf(this)
-    else -> {
-        val result = arrayListOf<File>()
-        listFiles()?.forEach {
-            if(it.isFile) {
-                result.add(it)
-            } else {
-                result.addAll(
-                    it.files()
-                )
-            }
-        }
-        result
-    }
-}
