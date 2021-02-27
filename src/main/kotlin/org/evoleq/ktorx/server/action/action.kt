@@ -66,11 +66,23 @@ inline fun <reified D : Any> receiveAction(): Action<Unit, Result<D, Throwable>>
 inline fun <C : Any, reified D : Any> configureAndReceiveAction(): Action<C, Result<Pair<C, D>, Throwable>> = KlScopedSuspendedState {
     config ->ScopedSuspendedState{
         context -> try{
-            val data:D = context.call.receive() //as D
-            Result.Success<Pair<C, D>, Throwable>((config x  data) )
+            if(D::class == Unit::class){
+                Result.Success<Pair<C, D>, Throwable>((config x Unit as D))
+            } else {
+                val data: D = context.call.receive() //as D
+                Result.Success<Pair<C, D>, Throwable>((config x data))
+            }
         } catch(throwable : Throwable){
             Result.Failure<Pair<C, D>, Throwable>(throwable)
         } x context
+    }
+}
+
+
+@KtorxDsl
+fun <C : Any> configureGetAction(): Action<C, Result<Pair<C, Unit>, Throwable>> = KlScopedSuspendedState {
+    config ->ScopedSuspendedState{
+        context -> Result.Success<Pair<C, Unit>, Throwable>((config x Unit))x context
     }
 }
 
