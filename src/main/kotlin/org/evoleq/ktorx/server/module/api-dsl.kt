@@ -67,12 +67,16 @@ class PhysicalApiConfiguration : Configuration<Api> {
     @KtorxDsl
     private val requests: ArrayList<ApiRequest> by lazy { arrayListOf<ApiRequest>()}
     
+    @KtorxDsl
+    private val contextToRoutesMap: HashMap<String, HashSet<String>> by lazy { hashMapOf() }
+    
     override fun configure(): Api = Api.Physical(
         name,
         scheme,
         host,
         port,
-        requests
+        requests,
+        contextToRoutesMap
     )
     
     @KtorxDsl
@@ -113,6 +117,21 @@ class PhysicalApiConfiguration : Configuration<Api> {
     @KtorxDsl
     fun ArrayList<ApiRequest>.options(name: String, route: String) {
         add(ApiRequest.Options(name,route))
+    }
+    
+    @KtorxDsl
+    fun contexts(vararg contexts: String, requests: ArrayList<ApiRequest>.()->Unit) {
+        with(arrayListOf<ApiRequest>()) {
+            requests()
+            val routes = map{ request -> "/${this@PhysicalApiConfiguration.name}${ request.route }"}.toHashSet()
+            contexts.forEach {
+                context -> when(contextToRoutesMap[context]) {
+                    null -> contextToRoutesMap[context] = routes
+                    else -> contextToRoutesMap[context]!!.addAll(routes)
+                }
+            }
+            this@PhysicalApiConfiguration.requests.addAll(this)
+        }
     }
     
 }

@@ -43,7 +43,8 @@ sealed class Api(open val name: String) {
         val scheme: String,
         val host: String,
         val port: Int,
-        val requests: ArrayList<ApiRequest>
+        val requests: ArrayList<ApiRequest>,
+        val contextToRoutesMap: HashMap<String, HashSet<String>>
     ): Api(name), List<ApiRequest> by requests
 }
 

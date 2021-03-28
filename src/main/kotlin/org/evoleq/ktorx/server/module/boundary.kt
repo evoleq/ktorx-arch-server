@@ -16,6 +16,7 @@
 package org.evoleq.ktorx.server.module
 
 import org.evoleq.ktorx.marker.KtorxDsl
+import org.evoleq.math.cat.structure.x
 import kotlin.reflect.KClass
 
 data class Boundary(
@@ -23,7 +24,76 @@ data class Boundary(
     val isos: Isomorphisms,
     val databases: Databases,
     val translations: TypedTranslations
-)
+) {
+    internal val contextToRoutes: HashMap<String, HashSet<String>> by lazy {
+        hashMapOf()
+    }
+    /*
+    init {
+        apis.values.filterIsInstance<Api.Physical>().forEach {
+            it.contextToRoutesMap.entries.forEach { entry ->
+                val context = entry.key
+                with(contextToRoutes[context]){
+                    when(this) {
+                        null -> contextToRoutes[context] = entry.value
+                        else -> contextToRoutes[context]!!.addAll(entry.value)
+                    }
+                }
+            }
+        }
+    }
+    
+     */
+    
+    
+    
+    fun addRouteToContext(context: String, route: String) {
+        with(contextToRoutes[context]){
+            when(this) {
+                null -> contextToRoutes[context] = hashSetOf(route)
+                else -> contextToRoutes[context]!!.add(route)
+            }
+        }
+    }
+    
+    fun displayContextToRoutesMap() {
+        with(contextToRoutes.entries) {
+            forEach {
+                println(
+                    """
+                |context = ${it.key}
+                |    ${it.value.joinToString("\n    ") { r -> r }}
+            """.trimMargin()
+                )
+            }
+        }
+    }
+    
+    @KtorxDsl
+    infix fun String.isInContext(context: String): Boolean =
+        with(contextToRoutes[context]){
+            when(this) {
+                null -> false
+                else -> fold(false) {
+                    acc, route -> acc || this@isInContext matchesAsRoute route
+                }
+            }
+        }
+        /*
+        apis.values.filterIsInstance<Api.Physical>().fold(false){
+                acc, api: Api.Physical -> acc || with(api.contextToRoutesMap[context]){
+            when(this) {
+                null -> false
+                else -> api.contextToRoutesMap[context]!!.fold(false){
+                        acc, route -> acc || this@isInContext matchesAsRoute route
+                }
+            }
+        }
+        }
+        
+         */
+    
+}
 
 
 @KtorxDsl
@@ -150,4 +220,24 @@ fun String.setParameters(parameters: HashMap<String, String>): String {
         tmp = tmp.replace("{$key}", value)
     }
     return tmp
+}
+
+infix fun String.matchesAsRoute(other: String): Boolean {
+    val l1 = arrayListOf(*split("/").filter{it != ""}.toTypedArray())
+    val l2 = arrayListOf(*other.split("/").filter{it != ""}.toTypedArray())
+    if(l1.size != l2.size){
+        return false
+    }
+    return l1.mapIndexed { index, item ->
+        item x l2[index]
+    }.fold(true) {
+        acc, pair -> acc && if(
+            pair.first.startsWith("{") ||
+            pair.second.startsWith("{")
+        ) {
+            true
+        } else {
+            pair.first == pair.second
+        }
+    }
 }

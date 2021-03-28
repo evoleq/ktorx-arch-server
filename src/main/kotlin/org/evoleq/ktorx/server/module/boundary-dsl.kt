@@ -32,12 +32,25 @@ open class BoundaryConfiguration : Configuration<Boundary> {
     @KtorxDsl
     val translations: TypedTranslations = TypedTranslations()
     
-    override fun configure(): Boundary = Boundary(
+    override fun configure(): Boundary = with(Boundary(
         Apis(apis),
         Isomorphisms(isos),
         Databases(databases),
         translations
-    )
+    )) {
+        apis.values.filterIsInstance<Api.Physical>().forEach {
+            it.contextToRoutesMap.entries.forEach { entry ->
+                val context = entry.key
+                with(contextToRoutes[context]){
+                    when(this) {
+                        null -> contextToRoutes[context] = entry.value
+                        else -> contextToRoutes[context]!!.addAll(entry.value)
+                    }
+                }
+            }
+        }
+        this
+    }
     /*
     @KtorxDsl
     infix fun <Data1: Any, Data2: Any> KClass<Data1>.iso(other: KClass<Data2>) {
@@ -95,6 +108,8 @@ open class BoundaryConfiguration : Configuration<Boundary> {
             translations()
             this@BoundaryConfiguration.translations[Type::class] = this
         }
+    
+    
 }
 
 @KtorxDsl

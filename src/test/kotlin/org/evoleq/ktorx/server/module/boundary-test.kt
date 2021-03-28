@@ -19,6 +19,7 @@ import org.evoleq.ktorx.server.action.Action
 import org.evoleq.math.cat.structure.x
 import org.evoleq.math.cat.suspend.monad.state.ScopedSuspendedState
 import kotlin.test.Test
+import kotlin.test.assertTrue
 
 class BoundaryTest {
     @Test fun `configure boundary`() {
@@ -32,6 +33,12 @@ class BoundaryTest {
                     requests {
                         get("home", "/")
                         get("user", "/user")
+                    }
+                    contexts("CONTEXT_1") {
+                        post(
+                            "pipi",
+                            "/pipi/{id}/kaka/{jd}"
+                        )
                     }
                 }
                 logical("api_two") {
@@ -72,8 +79,10 @@ class BoundaryTest {
         val physicalApi = boundary.apis["api_one"]!!
         assert(physicalApi is Api.Physical)
         with(physicalApi as Api.Physical) {
-            assert(requests.size == 2)
+            assert(requests.size == 3)
         }
+        
+        
         
         val logicalApi = boundary.apis["api_two"]!!
         assert(logicalApi is Api.Logical)
@@ -81,5 +90,18 @@ class BoundaryTest {
             assert(logicalApi.size == 1)
         }
         assert(boundary.databases.size == 2)
+        
+        
+        with(boundary){
+            addRouteToContext("CONTEXT_1", "/pipi/all")
+            
+            val isINContext = "pipi/5/kaka/0/" isInContext "CONTEXT_1"
+            assertTrue(isINContext)
+            
+            assertTrue("/pipi/all" isInContext "CONTEXT_1")
+        }
+
+        
+        
     }
 }
